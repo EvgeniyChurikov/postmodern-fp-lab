@@ -29,21 +29,29 @@ object List:
   def of[A](xs: A*): List[A] =
     xs.foldRight(List.Nil: List[A]) { case (x, acc) => List.Cons(x, acc) }
 
-def flatten[A](xs: List[List[A]]): List[A] =
+@tailrec
+def mv[A](xs: List[A], buf: List[A] = List.Nil): List[A] =
   xs match
-    case List.Nil => List.Nil
-    case List.Cons(List.Nil, tl) => flatten(tl)
-    case List.Cons(List.Cons(h, t), tl) => List.Cons(h, flatten(List.Cons(t, tl)))
+    case List.Nil => buf
+    case List.Cons(hd, tl) => mv(tl, List.Cons(hd, buf))
 
-//intersperse([1,2,3], 0) == [1,0,2,0,3]
+def flatten[A](xs: List[List[A]]): List[A] =
+  @tailrec
+  def go(xs: List[List[A]], buf: List[A] = List.Nil): List[A] =
+    xs match
+      case List.Nil => buf
+      case List.Cons(hd, tl) => go(tl, mv(hd, buf))
+  mv(go(xs))
+
 def intersperse[A](xs: List[A], a: A): List[A] =
+  @tailrec
+  def go(xs: List[A], a: A, buf: List[A]): List[A] =
+    xs match
+      case List.Nil => buf
+      case List.Cons(hd, tl) => go(tl, a, List.Cons(a, List.Cons(hd, buf)))
   xs match
     case List.Nil => List.Nil
-    case List.Cons(hd, tl) =>
-      if (tl == List.Nil)
-        xs
-      else
-        List.Cons(hd, List.Cons(a, intersperse(tl, a)))
+    case List.Cons(hd, tl) => List.Cons(hd, go(mv(tl), a, List.Nil))
 
 //intercalate([0], [[1], [2], [3]]) == [1,0,2,0,3]
 def intercalate[A](xs: List[A], yss: List[List[A]]): List[A] =
@@ -67,4 +75,4 @@ def toString(cs: List[Char]): String =
   go(cs, "")
 
 @main def run(): Unit =
-  println(List(1,2,3))
+  println(List(1))

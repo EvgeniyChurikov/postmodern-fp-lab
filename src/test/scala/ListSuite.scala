@@ -24,6 +24,11 @@ class ListSuite extends FunSuite {
     val actual = intersperse(List.Nil, 0)
     assertEquals(actual, expected)
   }
+  test("intersperse on [1], 0") {
+    val expected = List(1)
+    val actual = intersperse(List(1), 0)
+    assertEquals(actual, expected)
+  }
   test("intersperse on [1,2,3], 0") {
     val expected = List(1,0,2,0,3)
     val actual = intersperse(List(1,2,3), 0)
